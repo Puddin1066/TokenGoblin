@@ -15,12 +15,11 @@ from middleware.database import DBSessionMiddleware
 from middleware.throttling_middleware import ThrottlingMiddleware
 from models.user import UserDTO
 from multibot import main as main_multibot
-from handlers.user.cart import cart_router
+from handlers.user.token_purchase import TokenPurchaseHandler, TokenPurchaseStates
 from handlers.admin.admin import admin_router
-from handlers.user.all_categories import all_categories_router
-from handlers.user.my_profile import my_profile_router
 from services.notification import NotificationService
 from services.user import UserService
+from services.token_resale import TokenResaleService
 from utils.custom_filters import IsUserExistFilter
 from utils.localizator import Localizator
 
@@ -30,24 +29,54 @@ main_router = Router()
 
 @main_router.message(Command(commands=["start", "help"]))
 async def start(message: types.message, session: AsyncSession | Session):
-    all_categories_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "all_categories"))
-    my_profile_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "my_profile"))
+    buy_tokens_button = types.KeyboardButton(text="🪙 Buy Tokens")
+    my_orders_button = types.KeyboardButton(text="📊 My Orders")
     faq_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "faq"))
     help_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "help"))
     admin_menu_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.ADMIN, "menu"))
-    cart_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "cart"))
+    
     telegram_id = message.from_user.id
     await UserService.create_if_not_exist(UserDTO(
         telegram_username=message.from_user.username,
         telegram_id=telegram_id
     ), session)
-    keyboard = [[all_categories_button, my_profile_button], [faq_button, help_button],
-                [cart_button]]
+    
+    keyboard = [[buy_tokens_button, my_orders_button], [faq_button, help_button]]
     if telegram_id in config.ADMIN_ID_LIST:
         keyboard.append([admin_menu_button])
+    
     start_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2, keyboard=keyboard)
-    await message.answer(Localizator.get_text(BotEntity.COMMON, "start_message"), reply_markup=start_markup)
+    
+    welcome_text = "🪙 **Welcome to Token Resale Platform!**\n\n"
+    welcome_text += "✅ Buy popular tokens instantly\n"
+    welcome_text += "✅ Direct delivery to your wallet\n"
+    welcome_text += "✅ Real-time market prices\n"
+    welcome_text += "✅ Secure & fast transactions\n\n"
+    welcome_text += "Use the buttons below to get started!"
+    
+    await message.answer(welcome_text, reply_markup=start_markup, parse_mode="Markdown")
 
+
+# Token Purchase Handlers
+@main_router.message(F.text == "🪙 Buy Tokens")
+async def buy_tokens(message: types.Message):
+    await TokenPurchaseHandler.show_token_menu(message, None)
+
+@main_router.message(F.text == "📊 My Orders")
+async def my_orders(message: types.Message):
+    await TokenPurchaseHandler.show_transaction_history(message)
+
+@main_router.callback_query(F.data.startswith("select_token:"))
+async def handle_token_selection(callback: types.CallbackQuery):
+    await TokenPurchaseHandler.select_token(callback, None)
+
+@main_router.callback_query(F.data == "confirm_order")
+async def handle_order_confirmation(callback: types.CallbackQuery):
+    await TokenPurchaseHandler.confirm_order(callback, None)
+
+@main_router.callback_query(F.data == "cancel_purchase")
+async def handle_purchase_cancellation(callback: types.CallbackQuery):
+    await TokenPurchaseHandler.cancel_purchase(callback, None)
 
 @main_router.message(F.text == Localizator.get_text(BotEntity.USER, "faq"), IsUserExistFilter())
 async def faq(message: types.message):
@@ -78,16 +107,11 @@ async def error_handler(event: ErrorEvent, message: Message):
 
 
 throttling_middleware = ThrottlingMiddleware(redis)
-users_routers = Router()
-users_routers.include_routers(
-    all_categories_router,
-    my_profile_router,
-    cart_router
-)
-users_routers.message.middleware(throttling_middleware)
-users_routers.callback_query.middleware(throttling_middleware)
+
+# Register middleware and routers for simplified token resale platform
 main_router.include_router(admin_router)
-main_router.include_routers(users_routers)
+main_router.message.middleware(throttling_middleware)
+main_router.callback_query.middleware(throttling_middleware)
 main_router.message.middleware(DBSessionMiddleware())
 main_router.callback_query.middleware(DBSessionMiddleware())
 
