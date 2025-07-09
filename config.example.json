@@ -1,0 +1,22 @@
+{
+    "telegram_bot_token": "YOUR_TELEGRAM_BOT_TOKEN_HERE",
+    "openrouter_api_key": "YOUR_OPENROUTER_API_KEY_HERE",
+    "binance_api_key": "YOUR_BINANCE_API_KEY_HERE",
+    "binance_secret_key": "YOUR_BINANCE_SECRET_KEY_HERE",
+    "coingecko_api_key": "YOUR_COINGECKO_API_KEY_HERE",
+    "etherscan_api_key": "YOUR_ETHERSCAN_API_KEY_HERE",
+    
+    "database_url": "postgresql://user:password@localhost:5432/arbitrage_db",
+    "redis_url": "redis://localhost:6379/0",
+    
+    "min_profit_threshold": 0.02,
+    "max_position_size": 1000.0,
+    "stop_loss_percentage": 0.05,
+    
+    "monthly_revenue_target": 10000.0,
+    "daily_revenue_target": 333.33,
+    
+    "basic_tier_markup": 0.30,
+    "premium_tier_markup": 0.20,
+    "enterprise_tier_markup": 0.15
+}

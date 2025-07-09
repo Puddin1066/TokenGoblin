@@ -1,0 +1,45 @@
+# AI Token Arbitrage Agent Requirements
+# Core dependencies for $10K/month revenue system
+
+# Telegram Bot Framework
+aiogram==3.14.0
+aiogram[redis]==3.14.0
+
+# HTTP Client & WebSocket
+aiohttp==3.10.11
+websockets==13.1
+
+# Database & Caching
+sqlalchemy==2.0.36
+asyncpg==0.29.0
+redis==5.2.0
+psycopg2-binary==2.9.10
+
+# Cryptocurrency & Trading
+ccxt==4.4.32
+python-binance==1.0.19
+web3==7.6.0
+
+# Data Processing & Analysis
+pandas==2.2.3
+numpy==2.2.0
+requests==2.32.3
+
+# Environment & Configuration
+python-dotenv==1.0.1
+pydantic==2.10.3
+
+# Logging & Monitoring
+structlog==24.4.0
+prometheus-client==0.21.0
+
+# Development & Testing
+pytest==8.3.4
+pytest-asyncio==0.25.0
+black==24.10.0
+flake8==7.1.1
+
+# Deployment
+uvicorn==0.34.2
+gunicorn==23.0.0
+docker==7.1.0
