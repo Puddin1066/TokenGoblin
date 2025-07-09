@@ -1,0 +1,11 @@
+name,email,country,abstract_snippet,campaignID,language
+Dr. Li Wei,liwei@tsinghua.edu.cn,China,Prompt Optimization Methods for Large Language Models,camp_ai2024,zh
+Prof. Alexei Petrov,petrov@moscow.edu,Russia,Neural Architecture Search with Reinforcement Learning,camp_ai2024,ru
+Dr. Sarah Johnson,sarah.johnson@mit.edu,USA,Transformer Architectures for Long-Context Understanding,camp_ai2024,en
+Prof. Hiroshi Tanaka,tanaka@tokyo.ac.jp,Japan,Multimodal Learning in Computer Vision,camp_ai2024,en
+Dr. Marie Dubois,marie.dubois@inria.fr,France,Federated Learning for Privacy-Preserving AI,camp_ai2024,en
+Prof. Ivan Kozlov,kozlov@spbu.ru,Russia,Adversarial Training for Robust Neural Networks,camp_ai2024,ru
+Dr. Chen Ming,chen.ming@pku.edu.cn,China,Graph Neural Networks for Molecular Property Prediction,camp_ai2024,zh
+Dr. John Smith,john.smith@stanford.edu,USA,Attention Mechanisms in Natural Language Processing,camp_ai2024,en
+Prof. Ana Rodriguez,ana.rodriguez@uam.es,Spain,Explainable AI for Medical Diagnosis,camp_ai2024,en
+Dr. Yuki Sato,sato@kyoto-u.ac.jp,Japan,Quantum Machine Learning Algorithms,camp_ai2024,en
