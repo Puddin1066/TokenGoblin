@@ -1,5 +1,6 @@
 import logging
 import traceback
+from datetime import datetime
 
 from aiogram.client.default import DefaultBotProperties
 from aiogram.fsm.storage.redis import RedisStorage
@@ -22,6 +23,17 @@ dp = Dispatcher(storage=RedisStorage(redis))
 app = FastAPI()
 app.include_router(processing_router)
 app.include_router(ai_proxy_router)
+
+
+@app.get("/health")
+async def health_check():
+    """Health check endpoint for monitoring"""
+    return {
+        "status": "healthy",
+        "timestamp": datetime.utcnow().isoformat(),
+        "service": "ai-token-arbitrage-bot",
+        "version": "1.0.0"
+    }
 
 
 @app.post(config.WEBHOOK_PATH)

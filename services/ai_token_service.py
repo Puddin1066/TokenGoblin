@@ -10,9 +10,10 @@ from models.ai_token import AITokenPackageDTO, AITokenAllocationDTO
 from repositories.ai_token import AITokenPackageRepository, AITokenAllocationRepository
 from services.openrouter_api import OpenRouterAPI, TokenArbitrageEngine
 from services.notification import NotificationService
+from utils.logging_config import get_logger, log_business_event, log_transaction, log_arbitrage_operation, log_performance, log_user_action
 import config
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 
 class AITokenService:
@@ -22,6 +23,7 @@ class AITokenService:
         self.openrouter = OpenRouterAPI()
         self.arbitrage_engine = TokenArbitrageEngine()
     
+    @log_performance("get_available_packages")
     async def get_available_packages(self, session: AsyncSession | Session) -> List[Dict]:
         """Get all available token packages with formatted pricing"""
         packages = await AITokenPackageRepository.get_available_packages(session)
@@ -41,16 +43,30 @@ class AITokenService:
                 "daily_limit": package.daily_limit
             })
         
+        log_business_event("packages_retrieved", 
+                          package_count=len(formatted_packages),
+                          total_value=sum(p["price"] for p in formatted_packages))
+        
         return formatted_packages
     
+    @log_performance("purchase_token_package")
     async def purchase_token_package(self, package_id: int, user_id: int, 
                                      session: AsyncSession | Session) -> Dict:
         """Purchase a token package for a user"""
         
+        logger.info(f"Processing token package purchase - Package ID: {package_id}, User ID: {user_id}")
+        
         # Get package details
         package = await AITokenPackageRepository.get_by_id(package_id, session)
         if not package or not package.is_available:
+            logger.warning(f"Package purchase failed - Package {package_id} not available")
             return {"success": False, "error": "Package not available"}
+        
+        log_user_action(user_id, "token_package_purchase_attempt", 
+                       package_id=package_id, 
+                       model=package.model_access,
+                       tokens=package.token_count,
+                       price=package.sell_price)
         
         # Create API key for user
         api_key = await self.openrouter.create_api_key(
@@ -59,6 +75,7 @@ class AITokenService:
         )
         
         if not api_key:
+            logger.error(f"Failed to create API key for user {user_id}, package {package_id}")
             return {"success": False, "error": "Failed to create API key"}
         
         # Create allocation
@@ -76,11 +93,34 @@ class AITokenService:
             allocation = await AITokenAllocationRepository.create(allocation_dto, session)
             await session_commit(session)
             
+            # Log successful transaction
+            log_transaction("token_package_purchase", package.sell_price, user_id,
+                           package_id=package_id,
+                           model=package.model_access,
+                           tokens=package.token_count,
+                           api_key_prefix=api_key[:12])
+            
+            # Log arbitrage operation
+            log_arbitrage_operation("package_sale", package.model_access, package.token_count,
+                                   package.cost_price, package.sell_price,
+                                   user_id=user_id,
+                                   allocation_id=allocation.id)
+            
             # Send delivery message to user
             delivery_info = await self._format_delivery_message(allocation)
             
             # Notify admins of sale
             await self._notify_admin_of_sale(package, user_id, allocation.api_key)
+            
+            log_business_event("token_package_sold",
+                              package_id=package_id,
+                              user_id=user_id,
+                              model=package.model_access,
+                              tokens=package.token_count,
+                              revenue=package.sell_price,
+                              profit=package.sell_price - package.cost_price)
+            
+            logger.info(f"Token package purchase completed successfully - User: {user_id}, Package: {package_id}")
             
             return {
                 "success": True,
@@ -92,7 +132,11 @@ class AITokenService:
             }
             
         except Exception as e:
-            logger.error(f"Error creating token allocation: {e}")
+            logger.error(f"Error creating token allocation: {e}", exc_info=True)
+            log_business_event("token_purchase_failed",
+                              package_id=package_id,
+                              user_id=user_id,
+                              error=str(e))
             return {"success": False, "error": "Failed to create allocation"}
     
     async def validate_token_usage(self, api_key: str, requested_tokens: int, 
