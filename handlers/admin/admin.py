@@ -40,6 +40,8 @@ async def admin(**kwargs):
                               callback_data=StatisticsCallback.create(level=0))
     admin_menu_builder.button(text=Localizator.get_text(BotEntity.ADMIN, "crypto_withdraw"),
                               callback_data=WalletCallback.create(level=0))
+    admin_menu_builder.button(text="🤖 AI Token Arbitrage",
+                              callback_data=AdminMenuCallback.create(level=1, action="ai_tokens"))
     admin_menu_builder.adjust(2)
     if isinstance(message, Message):
         await message.answer(Localizator.get_text(BotEntity.ADMIN, "menu"),

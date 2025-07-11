@@ -166,3 +166,28 @@ class WalletCallback(BaseCallback, prefix="wallet"):
     @staticmethod
     def create(level: int, cryptocurrency: Cryptocurrency | None = None):
         return WalletCallback(level=level, cryptocurrency=cryptocurrency)
+
+
+class AITokenCallback(BaseCallback, prefix="ai_token"):
+    package_id: int
+    action: str
+    quantity: int
+    confirmation: bool
+    page: int
+
+    @staticmethod
+    def create(level: int, package_id: int = -1, action: str = "", 
+               quantity: int = 1, confirmation: bool = False, page: int = 0):
+        return AITokenCallback(level=level, package_id=package_id, action=action,
+                               quantity=quantity, confirmation=confirmation, page=page)
+
+
+class TokenManagementCallback(BaseCallback, prefix="token_mgmt"):
+    allocation_id: int
+    action: str
+    page: int
+
+    @staticmethod
+    def create(level: int, allocation_id: int = -1, action: str = "", page: int = 0):
+        return TokenManagementCallback(level=level, allocation_id=allocation_id, 
+                                       action=action, page=page)

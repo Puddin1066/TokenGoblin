@@ -34,3 +34,12 @@ KRYPTO_EXPRESS_API_SECRET = os.environ.get("KRYPTO_EXPRESS_API_SECRET")
 WEBHOOK_SECRET_TOKEN = os.environ.get("WEBHOOK_SECRET_TOKEN")
 REDIS_HOST = os.environ.get("REDIS_HOST")
 REDIS_PASSWORD = os.environ.get("REDIS_PASSWORD")
+
+# AI Token Arbitrage Configuration
+OPENROUTER_API_KEY = os.environ.get("OPENROUTER_API_KEY")
+OPENROUTER_BASE_URL = os.environ.get("OPENROUTER_BASE_URL", "https://openrouter.ai/api/v1")
+TOKEN_MARKUP_PERCENTAGE = float(os.environ.get("TOKEN_MARKUP_PERCENTAGE", "25"))  # 25% default markup
+MIN_PROFIT_MARGIN = float(os.environ.get("MIN_PROFIT_MARGIN", "0.10"))  # $0.10 minimum profit
+BULK_DISCOUNT_THRESHOLD = int(os.environ.get("BULK_DISCOUNT_THRESHOLD", "1000000"))  # 1M tokens
+BULK_DISCOUNT_PERCENTAGE = float(os.environ.get("BULK_DISCOUNT_PERCENTAGE", "5"))  # 5% bulk discount
+DEFAULT_TOKEN_EXPIRY_DAYS = int(os.environ.get("DEFAULT_TOKEN_EXPIRY_DAYS", "30"))  # 30 days expiry
