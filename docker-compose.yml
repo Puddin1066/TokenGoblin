@@ -1,64 +1,216 @@
+version: '3.8'
+
 services:
-  caddy:
-    image: lucaslorentz/caddy-docker-proxy:2.9.1-alpine
-    ports:
-      - 80:80
-      - 443:443
-    environment:
-      - CADDY_INGRESS_NETWORKS=caddy
-    networks:
-      - caddy
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-      - ./caddy/caddy_data:/data
+  # Main application
+  telegram_marketing_app:
+    build: .
+    container_name: telegram_marketing_app
     restart: unless-stopped
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  bot:
-    build:
-      context: .
-    container_name: 'AiogramShopBot'
-    env_file:
-      - .env
-    labels:
-      caddy: YOUR-DOMAIN-GOES-HERE
-      caddy.reverse_proxy: "bot:5000"
     depends_on:
-      - caddy
-    networks:
-      - caddy
+      - postgres
+      - redis
     ports:
-      - "4040:4040"
-      - "5000:5000" # ${WEBAPP_PORT}:${WEBAPP_PORT}
-    expose:
-      - 4040
-      - 5000 # ${WEBAPP_PORT}
-    volumes:
-      - ./AiogramShopBot:/bot/data # endswith your database name
-    command: [ "python", "-u", "run.py" ]
-
-  redis:
-    image: redis:latest
-    container_name: redis
-    command:
-      - /bin/sh
-      - -c
-      - redis-server --requirepass "$${REDIS_PASSWORD:?REDIS_PASSWORD variable is not set}"
-    ports:
-      - "6379:6379"
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/telegram_marketing
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
     env_file:
       - .env
+    volumes:
+      - ./data:/app/data
+      - ./logs:/app/logs
+      - ./temp:/app/temp
+    networks:
+      - marketing_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    container_name: telegram_marketing_postgres
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=telegram_marketing
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - marketing_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Redis for caching and queues
+  redis:
+    image: redis:7-alpine
+    container_name: telegram_marketing_redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
-    restart: always
+    ports:
+      - "6379:6379"
     networks:
-      - caddy
+      - marketing_network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Nginx reverse proxy
+  nginx:
+    image: nginx:alpine
+    container_name: telegram_marketing_nginx
+    restart: unless-stopped
+    depends_on:
+      - telegram_marketing_app
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+      - nginx_logs:/var/log/nginx
+    networks:
+      - marketing_network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  # Monitoring with Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: telegram_marketing_prometheus
+    restart: unless-stopped
+    depends_on:
+      - telegram_marketing_app
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    networks:
+      - marketing_network
+
+  # Grafana for dashboards
+  grafana:
+    image: grafana/grafana:latest
+    container_name: telegram_marketing_grafana
+    restart: unless-stopped
+    depends_on:
+      - prometheus
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+      - ./grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - marketing_network
+
+  # Backup service
+  backup:
+    image: postgres:15-alpine
+    container_name: telegram_marketing_backup
+    restart: "no"
+    depends_on:
+      - postgres
+    volumes:
+      - ./backups:/backups
+      - ./scripts/backup.sh:/backup.sh
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_DB=telegram_marketing
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    command: ["/backup.sh"]
+    networks:
+      - marketing_network
+
+  # Log aggregation with Loki
+  loki:
+    image: grafana/loki:latest
+    container_name: telegram_marketing_loki
+    restart: unless-stopped
+    ports:
+      - "3100:3100"
+    volumes:
+      - loki_data:/loki
+      - ./loki-config.yml:/etc/loki/local-config.yaml
+    command: -config.file=/etc/loki/local-config.yaml
+    networks:
+      - marketing_network
+
+  # Promtail for log collection
+  promtail:
+    image: grafana/promtail:latest
+    container_name: telegram_marketing_promtail
+    restart: unless-stopped
+    depends_on:
+      - loki
+    volumes:
+      - ./logs:/var/log/app
+      - nginx_logs:/var/log/nginx
+      - ./promtail-config.yml:/etc/promtail/config.yml
+    command: -config.file=/etc/promtail/config.yml
+    networks:
+      - marketing_network
+
+  # Watchtower for automatic updates
+  watchtower:
+    image: containrrr/watchtower:latest
+    container_name: telegram_marketing_watchtower
+    restart: unless-stopped
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_POLL_INTERVAL=300
+      - WATCHTOWER_CLEANUP=true
+    command: --cleanup --interval 300
+    networks:
+      - marketing_network
 
 volumes:
-  AiogramShopBot:
-  caddy_data:
+  postgres_data:
+    driver: local
   redis_data:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
+  loki_data:
+    driver: local
+  nginx_logs:
+    driver: local
 
 networks:
-  caddy:
+  marketing_network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/16
