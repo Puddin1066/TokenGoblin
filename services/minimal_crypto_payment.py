@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select, update, insert
 
 import config
-from models.payment import Payment, PaymentDTO
+from models.payment import Payment, ProcessingPaymentDTO, TablePaymentDTO
 from models.user import User
 from services.notification import NotificationService
 

@@ -1,0 +1,58 @@
+# TokenGoblin Conversational AI Configuration
+
+# Bot Configuration
+TOKEN=your_telegram_bot_token_here
+ADMIN_ID_LIST=123456,654321
+SUPPORT_LINK=https://t.me/your_username
+
+# AI Configuration
+OPENROUTER_API_KEY=your_openrouter_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+
+# Conversational AI Features
+CONVERSATIONAL_AI_ENABLED=true
+EMOTION_ANALYSIS_ENABLED=true
+PERSONALITY_ENHANCEMENT_ENABLED=true
+CONVERSATION_CACHE_TTL=7200
+
+# Agentic Features
+AGENTIC_MODE=true
+
+# Database Configuration
+DB_NAME=database.db
+DB_ENCRYPTION=false
+DB_PASS=
+
+# Redis Configuration
+REDIS_HOST=localhost
+REDIS_PASSWORD=1234567890
+
+# Payment Configuration
+ETHPLORER_API_KEY=your_ethplorer_api_key_here
+
+# Webhook Configuration
+WEBHOOK_PATH=/
+WEBAPP_HOST=0.0.0.0
+WEBAPP_PORT=5000
+WEBHOOK_SECRET_TOKEN=your_secret_token_here
+WEBHOOK_URL=https://your-domain.com/
+
+# NGROK Configuration (for development)
+NGROK_TOKEN=your_ngrok_token_here
+
+# Logging
+LOG_LEVEL=INFO
+
+# Rate Limiting
+RATE_LIMIT_PER_USER=100
+RATE_LIMIT_PER_IP=1000
+
+# Caching
+CACHE_TTL=3600
+CACHE_PREFIX=ai_bot:
+
+# Marketing Features (optional)
+MARKETING_ENABLED=false
+CONTENT_GENERATION_ENABLED=false
+OUTBOUND_CAMPAIGNS_ENABLED=false
+ANALYTICS_ENABLED=false 

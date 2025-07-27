@@ -65,6 +65,24 @@ class CartCallback(BaseCallback, prefix="cart"):
                             confirmation=confirmation)
 
 
+class AITokenCallback(BaseCallback, prefix="ai_token"):
+    package_id: int | None
+    tokens: int | None
+    custom: bool | None
+    confirm: bool | None
+    action: str | None
+    address: str | None
+    order_id: str | None
+    back: bool | None
+
+    @staticmethod
+    def create(level: int, package_id: int | None = None, tokens: int | None = None, 
+               custom: bool | None = None, confirm: bool | None = None, action: str | None = None,
+               address: str | None = None, order_id: str | None = None, back: bool | None = None):
+        return AITokenCallback(level=level, package_id=package_id, tokens=tokens, custom=custom,
+                              confirm=confirm, action=action, address=address, order_id=order_id, back=back)
+
+
 class AdminMenuCallback(BaseCallback, prefix="admin_menu"):
     action: str
     args_to_action: str | int
@@ -110,12 +128,8 @@ class AdminInventoryManagementCallback(BaseCallback, prefix="inventory_managemen
     @staticmethod
     def create(level: int, add_type: AddType | None = None, entity_type: EntityType | None = None,
                entity_id: int | None = None, page: int = 0, confirmation: bool = False):
-        return AdminInventoryManagementCallback(level=level,
-                                                add_type=add_type,
-                                                entity_type=entity_type,
-                                                entity_id=entity_id,
-                                                page=page,
-                                                confirmation=confirmation)
+        return AdminInventoryManagementCallback(level=level, add_type=add_type, entity_type=entity_type,
+                                               entity_id=entity_id, page=page, confirmation=confirmation)
 
 
 class UserManagementOperation(IntEnum):

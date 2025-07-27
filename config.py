@@ -40,6 +40,25 @@ MAX_PURCHASE_BUDGET = float(os.getenv("MAX_PURCHASE_BUDGET", "500"))
 OPPORTUNITY_CHECK_INTERVAL = int(os.getenv("OPPORTUNITY_CHECK_INTERVAL", "3600"))
 PRICING_UPDATE_INTERVAL = int(os.getenv("PRICING_UPDATE_INTERVAL", "1800"))
 
+# Marketing Configuration
+MARKETING_ENABLED = os.getenv("MARKETING_ENABLED", "false").lower() == "true"
+CONTENT_GENERATION_ENABLED = os.getenv("CONTENT_GENERATION_ENABLED", "false").lower() == "true"
+OUTBOUND_CAMPAIGNS_ENABLED = os.getenv("OUTBOUND_CAMPAIGNS_ENABLED", "false").lower() == "true"
+ANALYTICS_ENABLED = os.getenv("ANALYTICS_ENABLED", "false").lower() == "true"
+
+# Conversational AI Configuration
+CONVERSATIONAL_AI_ENABLED = os.getenv("CONVERSATIONAL_AI_ENABLED", "false").lower() == "true"
+CONVERSATION_CACHE_TTL = int(os.getenv("CONVERSATION_CACHE_TTL", "7200"))
+EMOTION_ANALYSIS_ENABLED = os.getenv("EMOTION_ANALYSIS_ENABLED", "true").lower() == "true"
+PERSONALITY_ENHANCEMENT_ENABLED = os.getenv("PERSONALITY_ENHANCEMENT_ENABLED", "true").lower() == "true"
+
+# Campaign Limits
+MAX_DAILY_OUTBOUND_MESSAGES = int(os.getenv("MAX_DAILY_OUTBOUND_MESSAGES", "100"))
+CAMPAIGN_BUDGET_LIMIT = float(os.getenv("CAMPAIGN_BUDGET_LIMIT", "1000"))
+
+# Analytics Settings
+TRACKING_ENABLED = os.getenv("TRACKING_ENABLED", "false").lower() == "true"
+
 # Lead Scoring Weights
 LEAD_SCORING_WEIGHTS = {
     'browse_frequency': float(os.getenv("BROWSE_FREQUENCY_WEIGHT", "0.3")),
@@ -71,6 +90,7 @@ WEBHOOK_PATH = os.getenv("WEBHOOK_PATH", "/")
 WEBAPP_HOST = os.getenv("WEBAPP_HOST", "0.0.0.0")
 WEBAPP_PORT = int(os.getenv("WEBAPP_PORT", "5000"))
 WEBHOOK_SECRET_TOKEN = os.getenv("WEBHOOK_SECRET_TOKEN", "your_secret_token")
+WEBHOOK_URL = os.getenv("WEBHOOK_URL", "https://bdcfde406d08.ngrok-free.app")
 
 # NGROK Configuration
 NGROK_TOKEN = os.getenv("NGROK_TOKEN")
@@ -120,5 +140,6 @@ if not TOKEN:
 if AGENTIC_MODE and not OPENROUTER_API_KEY:
     raise ValueError("OPENROUTER_API_KEY is required when AGENTIC_MODE is enabled")
 
-if AGENTIC_MODE and not ANTHROPIC_API_KEY:
-    raise ValueError("ANTHROPIC_API_KEY is required when AGENTIC_MODE is enabled")
+# Note: ANTHROPIC_API_KEY is optional for now - can be added later if needed
+# if AGENTIC_MODE and not ANTHROPIC_API_KEY:
+#     raise ValueError("ANTHROPIC_API_KEY is required when AGENTIC_MODE is enabled")

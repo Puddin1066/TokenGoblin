@@ -28,7 +28,8 @@ logger = logging.getLogger(__name__)
 redis_client = redis.from_url(f"redis://{config.REDIS_HOST}:6379")
 
 # Initialize bot and dispatcher
-bot = Bot(token=config.TOKEN, parse_mode=ParseMode.HTML)
+from aiogram.client.default import DefaultBotProperties
+bot = Bot(token=config.TOKEN, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 storage = RedisStorage.from_url(f"redis://{config.REDIS_HOST}:6379")
 dp = Dispatcher(storage=storage)
 

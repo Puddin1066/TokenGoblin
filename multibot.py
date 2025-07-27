@@ -21,7 +21,7 @@ from utils.custom_filters import AdminIdFilter
 
 main_router_multibot = Router()
 
-BASE_URL = config.WEBHOOK_HOST
+BASE_URL = config.WEBAPP_HOST
 MAIN_BOT_TOKEN = config.TOKEN
 
 WEB_SERVER_HOST = config.WEBAPP_HOST

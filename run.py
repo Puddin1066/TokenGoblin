@@ -16,6 +16,7 @@ from middleware.throttling_middleware import ThrottlingMiddleware
 from models.user import UserDTO
 from multibot import main as main_multibot
 from handlers.user.cart import cart_router
+from handlers.user.ai_tokens import ai_tokens_router
 from handlers.admin.admin import admin_router
 from handlers.user.all_categories import all_categories_router
 from handlers.user.my_profile import my_profile_router
@@ -32,6 +33,7 @@ main_router = Router()
 async def start(message: types.message, session: AsyncSession | Session):
     all_categories_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "all_categories"))
     my_profile_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "my_profile"))
+    ai_tokens_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "ai_tokens"))
     faq_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "faq"))
     help_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.USER, "help"))
     admin_menu_button = types.KeyboardButton(text=Localizator.get_text(BotEntity.ADMIN, "menu"))
@@ -41,8 +43,8 @@ async def start(message: types.message, session: AsyncSession | Session):
         telegram_username=message.from_user.username,
         telegram_id=telegram_id
     ), session)
-    keyboard = [[all_categories_button, my_profile_button], [faq_button, help_button],
-                [cart_button]]
+    keyboard = [[all_categories_button, my_profile_button], [ai_tokens_button, cart_button],
+                [faq_button, help_button]]
     if telegram_id in config.ADMIN_ID_LIST:
         keyboard.append([admin_menu_button])
     start_markup = types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2, keyboard=keyboard)
@@ -82,7 +84,8 @@ users_routers = Router()
 users_routers.include_routers(
     all_categories_router,
     my_profile_router,
-    cart_router
+    cart_router,
+    ai_tokens_router
 )
 users_routers.message.middleware(throttling_middleware)
 users_routers.callback_query.middleware(throttling_middleware)

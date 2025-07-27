@@ -18,140 +18,123 @@ class AgenticOrchestrator:
         self.payment_service = EnhancedCryptoPaymentService()
         self.logger = logging.getLogger(__name__)
         
-        # Configuration
-        self.min_inventory_threshold = 1000  # Minimum tokens to maintain
-        self.max_purchase_budget = 500  # Maximum USD to spend on token procurement
+        # Configuration - DISABLED for user-only purchases
+        self.min_inventory_threshold = 0  # No inventory maintenance
+        self.max_purchase_budget = 0  # No autonomous purchases
         self.opportunity_check_interval = 3600  # Check for opportunities every hour
         self.pricing_update_interval = 1800  # Update pricing every 30 minutes
         
+        # DISABLED: All speculative/autonomous buying is disabled
+        self.agentic_operations_enabled = False
+        
     async def start_agentic_operations(self):
-        """Start all agentic operations"""
-        self.logger.info("Starting agentic operations...")
+        """Start all agentic operations - DISABLED for user-only purchases"""
+        self.logger.info("Agentic operations DISABLED - Only user-initiated purchases allowed")
         
-        # Start background tasks
-        tasks = [
-            asyncio.create_task(self._run_opportunity_discovery()),
-            asyncio.create_task(self._run_dynamic_pricing()),
-            asyncio.create_task(self._run_inventory_management()),
-            asyncio.create_task(self._run_cross_selling_campaigns()),
-            asyncio.create_task(self._run_retention_campaigns()),
-            asyncio.create_task(self._run_payment_monitoring())
-        ]
+        # DISABLED: No background tasks for autonomous operations
+        # All token purchases must be user-initiated and paid for
+        return
         
-        await asyncio.gather(*tasks)
+        # Original code (commented out):
+        # tasks = [
+        #     asyncio.create_task(self._run_opportunity_discovery()),
+        #     asyncio.create_task(self._run_dynamic_pricing()),
+        #     asyncio.create_task(self._run_inventory_management()),
+        #     asyncio.create_task(self._run_cross_selling_campaigns()),
+        #     asyncio.create_task(self._run_retention_campaigns()),
+        #     asyncio.create_task(self._run_payment_monitoring())
+        # ]
+        # await asyncio.gather(*tasks)
     
     async def _run_opportunity_discovery(self):
-        """Continuously discover sales opportunities"""
-        while True:
-            try:
-                # Get database session (implementation needed)
-                session = None  # Placeholder
-                
-                # Identify opportunities
-                opportunities = await self.sales_service.identify_sales_opportunities(session)
-                
-                if opportunities:
-                    self.logger.info(f"Found {len(opportunities)} sales opportunities")
-                    
-                    # Execute proactive outreach
-                    await self.sales_service.execute_proactive_outreach(opportunities, session)
-                    
-                    # Send notification to admins
-                    await self._notify_admins_about_opportunities(opportunities)
-                
-                # Wait before next check
-                await asyncio.sleep(self.opportunity_check_interval)
-                
-            except Exception as e:
-                self.logger.error(f"Error in opportunity discovery: {e}")
-                await asyncio.sleep(300)  # Wait 5 minutes before retry
+        """Continuously discover sales opportunities - DISABLED"""
+        self.logger.info("Opportunity discovery DISABLED - No autonomous sales")
+        return
+        
+        # Original code (commented out):
+        # while True:
+        #     try:
+        #         session = None
+        #         opportunities = await self.sales_service.identify_sales_opportunities(session)
+        #         if opportunities:
+        #             self.logger.info(f"Found {len(opportunities)} sales opportunities")
+        #             await self.sales_service.execute_proactive_outreach(opportunities, session)
+        #             await self._notify_admins_about_opportunities(opportunities)
+        #         await asyncio.sleep(self.opportunity_check_interval)
+        #     except Exception as e:
+        #         self.logger.error(f"Error in opportunity discovery: {e}")
+        #         await asyncio.sleep(300)
     
     async def _run_dynamic_pricing(self):
-        """Continuously optimize pricing based on market conditions"""
-        while True:
-            try:
-                # Get database session (implementation needed)
-                session = None  # Placeholder
-                
-                # Optimize pricing
-                await self.sales_service.optimize_pricing_dynamically(session)
-                
-                # Get market conditions
-                market_conditions = await self._get_market_conditions()
-                
-                # Adjust pricing based on market conditions
-                await self._adjust_pricing_for_market_conditions(market_conditions)
-                
-                # Wait before next update
-                await asyncio.sleep(self.pricing_update_interval)
-                
-            except Exception as e:
-                self.logger.error(f"Error in dynamic pricing: {e}")
-                await asyncio.sleep(300)  # Wait 5 minutes before retry
+        """Continuously optimize pricing based on market conditions - DISABLED"""
+        self.logger.info("Dynamic pricing DISABLED - Fixed pricing with markup only")
+        return
+        
+        # Original code (commented out):
+        # while True:
+        #     try:
+        #         session = None
+        #         await self.sales_service.optimize_pricing_dynamically(session)
+        #         market_conditions = await self._get_market_conditions()
+        #         await self._adjust_pricing_for_market_conditions(market_conditions)
+        #         await asyncio.sleep(self.pricing_update_interval)
+        #     except Exception as e:
+        #         self.logger.error(f"Error in dynamic pricing: {e}")
+        #         await asyncio.sleep(300)
     
     async def _run_inventory_management(self):
-        """Continuously manage inventory levels"""
-        while True:
-            try:
-                # Get database session (implementation needed)
-                session = None  # Placeholder
-                
-                # Predict and restock inventory
-                await self.sales_service.predict_and_restock_inventory(session)
-                
-                # Check current inventory levels
-                inventory_status = await self._check_inventory_levels()
-                
-                # Auto-procure tokens if needed
-                if inventory_status['needs_restock']:
-                    await self._auto_procure_tokens(inventory_status['restock_items'])
-                
-                # Wait before next check
-                await asyncio.sleep(7200)  # Check every 2 hours
-                
-            except Exception as e:
-                self.logger.error(f"Error in inventory management: {e}")
-                await asyncio.sleep(600)  # Wait 10 minutes before retry
+        """Continuously manage inventory levels - DISABLED"""
+        self.logger.info("Inventory management DISABLED - No autonomous restocking")
+        return
+        
+        # Original code (commented out):
+        # while True:
+        #     try:
+        #         session = None
+        #         await self.sales_service.predict_and_restock_inventory(session)
+        #         inventory_status = await self._check_inventory_levels()
+        #         if inventory_status['needs_restock']:
+        #             await self._auto_procure_tokens(inventory_status['restock_items'])
+        #         await asyncio.sleep(7200)
+        #     except Exception as e:
+        #         self.logger.error(f"Error in inventory management: {e}")
+        #         await asyncio.sleep(600)
     
     async def _run_cross_selling_campaigns(self):
-        """Run cross-selling campaigns periodically"""
-        while True:
-            try:
-                # Get database session (implementation needed)
-                session = None  # Placeholder
-                
-                # Execute cross-selling campaigns
-                await self.sales_service.execute_cross_selling_campaigns(session)
-                
-                # Wait before next campaign
-                await asyncio.sleep(86400)  # Run daily
-                
-            except Exception as e:
-                self.logger.error(f"Error in cross-selling campaigns: {e}")
-                await asyncio.sleep(3600)  # Wait 1 hour before retry
+        """Run cross-selling campaigns periodically - DISABLED"""
+        self.logger.info("Cross-selling campaigns DISABLED - No autonomous marketing")
+        return
+        
+        # Original code (commented out):
+        # while True:
+        #     try:
+        #         session = None
+        #         await self.sales_service.execute_cross_selling_campaigns(session)
+        #         await asyncio.sleep(86400)
+        #     except Exception as e:
+        #         self.logger.error(f"Error in cross-selling campaigns: {e}")
+        #         await asyncio.sleep(3600)
     
     async def _run_retention_campaigns(self):
-        """Run retention campaigns periodically"""
-        while True:
-            try:
-                # Get database session (implementation needed)
-                session = None  # Placeholder
-                
-                # Manage retention campaigns
-                await self.sales_service.manage_retention_campaigns(session)
-                
-                # Wait before next campaign
-                await asyncio.sleep(604800)  # Run weekly
-                
-            except Exception as e:
-                self.logger.error(f"Error in retention campaigns: {e}")
-                await asyncio.sleep(3600)  # Wait 1 hour before retry
+        """Run retention campaigns periodically - DISABLED"""
+        self.logger.info("Retention campaigns DISABLED - No autonomous marketing")
+        return
+        
+        # Original code (commented out):
+        # while True:
+        #     try:
+        #         session = None
+        #         await self.sales_service.manage_retention_campaigns(session)
+        #         await asyncio.sleep(604800)
+        #     except Exception as e:
+        #         self.logger.error(f"Error in retention campaigns: {e}")
+        #         await asyncio.sleep(3600)
     
     async def _run_payment_monitoring(self):
-        """Continuously monitor payment status"""
+        """Continuously monitor payment status - ENABLED for user payments only"""
         while True:
             try:
-                # Monitor pending payments
+                # Monitor pending payments for user-initiated orders only
                 pending_payments = await self._get_pending_payments()
                 
                 for payment in pending_payments:
@@ -159,7 +142,7 @@ class AgenticOrchestrator:
                     status = await self.payment_service.monitor_payment_status(payment['id'])
                     
                     if status['status'] == 'confirmed':
-                        # Process automatic settlement
+                        # Process automatic settlement for user payments
                         settlement = await self.payment_service.process_automatic_settlement(payment['id'])
                         
                         if settlement['status'] == 'settled':
@@ -176,30 +159,29 @@ class AgenticOrchestrator:
                 await asyncio.sleep(300)  # Wait 5 minutes before retry
     
     async def handle_user_interaction(self, user_id: int, interaction_type: str, data: Dict = None):
-        """Handle user interactions and trigger appropriate agentic responses"""
-        try:
-            # Get database session (implementation needed)
-            session = None  # Placeholder
-            
-            # Log user interaction
-            await self._log_user_interaction(user_id, interaction_type, data)
-            
-            # Analyze interaction for opportunities
-            opportunity_score = await self._analyze_interaction_for_opportunity(user_id, interaction_type, data)
-            
-            if opportunity_score > 0.8:  # High opportunity score
-                # Trigger immediate response
-                await self._trigger_immediate_response(user_id, interaction_type, data)
-            
-            # Update user behavior model
-            await self._update_user_behavior_model(user_id, interaction_type, data)
-            
-        except Exception as e:
-            self.logger.error(f"Error handling user interaction: {e}")
+        """Handle user interactions and trigger appropriate agentic responses - DISABLED"""
+        self.logger.info(f"User interaction logged: {user_id} - {interaction_type}")
+        # DISABLED: No autonomous responses to user interactions
+        return
+        
+        # Original code (commented out):
+        # try:
+        #     session = None
+        #     await self._log_user_interaction(user_id, interaction_type, data)
+        #     opportunity_score = await self._analyze_interaction_for_opportunity(user_id, interaction_type, data)
+        #     if opportunity_score > 0.8:
+        #         await self._trigger_immediate_response(user_id, interaction_type, data)
+        #     await self._update_user_behavior_model(user_id, interaction_type, data)
+        # except Exception as e:
+        #     self.logger.error(f"Error handling user interaction: {e}")
     
     async def execute_smart_purchase(self, user_id: int, desired_tokens: int, budget: float) -> Dict:
-        """Execute intelligent token purchase based on user requirements"""
+        """Execute intelligent token purchase based on user requirements - USER-ONLY"""
         try:
+            # Only execute purchases for valid user orders
+            if user_id == 0:  # System purchase
+                return {'success': False, 'error': 'System purchases disabled - user-only purchases allowed'}
+            
             # Get optimal purchase strategy
             strategy = await self.openrouter_service.get_optimal_purchase_strategy(desired_tokens, budget)
             
@@ -267,67 +249,44 @@ class AgenticOrchestrator:
             pass
     
     async def _get_market_conditions(self) -> Dict:
-        """Get current market conditions"""
-        try:
-            # Get OpenRouter pricing
-            models = await self.openrouter_service.get_available_models()
-            claude_models = [m for m in models if 'claude' in m['id'].lower()]
-            
-            # Get payment analytics
-            payment_analytics = await self.payment_service.get_payment_analytics(days=7)
-            
-            return {
-                'claude_pricing': claude_models,
-                'payment_success_rate': payment_analytics.get('success_rate', 0),
-                'average_payment_amount': payment_analytics.get('average_payment_amount', 0),
-                'payment_methods': payment_analytics.get('payment_methods_distribution', {})
-            }
-        except Exception as e:
-            self.logger.error(f"Error getting market conditions: {e}")
-            return {}
+        """Get current market conditions for pricing optimization - DISABLED"""
+        return {
+            'competitor_prices': {},
+            'demand_trends': {},
+            'supply_availability': {}
+        }
     
     async def _adjust_pricing_for_market_conditions(self, market_conditions: Dict):
-        """Adjust pricing based on market conditions"""
-        try:
-            # Implementation would adjust pricing based on market conditions
-            # This could include:
-            # - Competitor price monitoring
-            # - Demand-based pricing
-            # - Cost-based pricing adjustments
-            pass
-        except Exception as e:
-            self.logger.error(f"Error adjusting pricing: {e}")
+        """Adjust pricing based on market conditions - DISABLED"""
+        self.logger.info("Pricing adjustments DISABLED - Fixed pricing only")
+        pass
     
     async def _check_inventory_levels(self) -> Dict:
-        """Check current inventory levels"""
-        try:
-            # Implementation would check current token inventory
-            return {
-                'needs_restock': False,
-                'restock_items': [],
-                'current_levels': {}
-            }
-        except Exception as e:
-            self.logger.error(f"Error checking inventory levels: {e}")
-            return {'needs_restock': False, 'restock_items': []}
+        """Check current inventory levels - DISABLED"""
+        return {
+            'needs_restock': False,
+            'restock_items': []
+        }
     
     async def _auto_procure_tokens(self, restock_items: List[Dict]):
-        """Automatically procure tokens for restock items"""
-        try:
-            for item in restock_items:
-                # Execute smart purchase for each item
-                result = await self.execute_smart_purchase(
-                    user_id=0,  # System purchase
-                    desired_tokens=item.get('required_tokens', 1000),
-                    budget=item.get('budget', 100)
-                )
-                
-                if result['success']:
-                    self.logger.info(f"Auto-procured tokens for {item}")
-                else:
-                    self.logger.error(f"Failed to auto-procure tokens for {item}: {result['error']}")
-        except Exception as e:
-            self.logger.error(f"Error in auto-procurement: {e}")
+        """Automatically procure tokens for restock items - DISABLED"""
+        self.logger.info("Auto-procurement DISABLED - User-only purchases allowed")
+        return
+        
+        # Original code (commented out):
+        # try:
+        #     for item in restock_items:
+        #         result = await self.execute_smart_purchase(
+        #             user_id=0,  # System purchase
+        #             desired_tokens=item.get('required_tokens', 1000),
+        #             budget=item.get('budget', 100)
+        #         )
+        #         if result['success']:
+        #             self.logger.info(f"Auto-procured tokens for {item}")
+        #         else:
+        #             self.logger.error(f"Failed to auto-procure tokens for {item}: {result['error']}")
+        # except Exception as e:
+        #     self.logger.error(f"Error in auto-procurement: {e}")
     
     async def _get_pending_payments(self) -> List[Dict]:
         """Get list of pending payments"""

@@ -143,6 +143,7 @@
     "select_quantity": "🛒 <b>Category: {category_name}\nSubcategory: {subcategory_name}\nPrice: {currency_sym}{price:.2f}\nDescription: {description}\nQuantity available: {quantity}</b>",
     "subcategory_button": "📦 {subcategory_name}| Price: {currency_sym}{subcategory_price:.2f} | Qty: {available_quantity}",
     "subcategories": "📦 <b>Subcategories:</b>",
+    "ai_tokens": "🤖 AI Tokens",
     "top_up_balance_button": "➕ Top Up Balance",
     "top_up_balance_msg": "💵 <b>Deposit to the address the amount you want in {crypto_name} to top up the balance of bot.</b>\n\nPayment status: {status}\n\n<b>Important</b>\n<i>A unique BTC/LTC/SOL/ETH addresses is given for each deposit\nThe top up takes place within 5 minutes after the transfer.\n\nAfter a successful balance refresh, you will receive a notification from bot.</i>\n\n<b>Your {crypto_name} address\n</b><code>{addr}</code>",
     "top_up_balance_request_fiat": "\uD83D\uDCB5 <b>Please send the amount you wish to top up balance in <u>{currency_text}</u> or \"<code>cancel</code>\".\n⚠\uFE0F Attention! Minimal deposit amount 5 {currency_text}</b>",
